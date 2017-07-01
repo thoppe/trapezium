@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-f_csv = "travis_walking_indoor_test5.dat"
+f_csv = "data_collection/travis_walking_indoor_test5.dat"
 cols = {
     0:'device',
     1:'timestamp',

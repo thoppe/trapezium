@@ -49,6 +49,11 @@ Sample measurements should have taken approximately these time intervals:
 + downstairs 15s
 + upstairs 20s
 
+Walking data for the knee
+
+![Sample Data](figures/indoor_walking_test_knee_walking.png)
+
+Full dataset plotted for lower leg
 
 ![Sample Data](figures/indoor_walking_test_sample_plot.png)
 

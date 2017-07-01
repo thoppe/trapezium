@@ -39,20 +39,23 @@ for i in dev:
 import seaborn as sns
 import pylab as plt
 
-#for i in range(4):
-#    y = dev[i].ax.astype(float)
-#    plt.plot(y)
+start_time = 77.0
+end_time = 95.0
 
 for idx in range(4):
-    fig, axes = plt.subplots(2,3, figsize=(8,4), sharey='row')
-
-    axes[0][0].plot( dev[idx].ax )
-    axes[0][1].plot( dev[idx].ay )
-    axes[0][2].plot( dev[idx].az )
+    fig, axes = plt.subplots(2,3, figsize=(8,4), sharey='row', sharex='row')
     
-    axes[1][0].plot( dev[idx].gx )
-    axes[1][1].plot( dev[idx].gy )
-    axes[1][2].plot( dev[idx].gz )
+    # Approx time delta for samples (this isn't quite correct)
+    T = np.arange(0, len(dev[idx].ax), 1/400.)
+    T = T[:len(dev[idx].ax)]
+    
+    axes[0][0].plot( T, dev[idx].ax )
+    axes[0][1].plot( T, dev[idx].ay )
+    axes[0][2].plot( T, dev[idx].az )
+    
+    axes[1][0].plot( T, dev[idx].gx )
+    axes[1][1].plot( T, dev[idx].gy )
+    axes[1][2].plot( T, dev[idx].gz )
 
     plt.suptitle("device {}".format(idx))
     
@@ -63,6 +66,9 @@ for idx in range(4):
     axes[1][0].set_ylabel('gx (rad/s)')
     axes[1][1].set_ylabel('gy (rad/s)')
     axes[1][2].set_ylabel('gz (rad/s)')
+
+    if start_time is not None and end_time is not None:
+        axes[0][0].set_xlim(start_time, end_time)
     
     plt.tight_layout()
 

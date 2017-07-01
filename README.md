@@ -36,5 +36,19 @@ Notes on the data fields:
 
 Took several measurements walking, jogging, running, sprinting, backwards walking, jumping, squats, and stairs. Sensor device order (1-4-2-3) mounted roughly on the waist, upper thigh, top of knee, and above the ankle.
 
+Sample measurements should have taken approximately these time intervals:
+
++ setup ~80s
++ walking 53s
++ jogging 26s
++ sprint < 8s
++ setup 15.5s
++ jumping 23.5s
++ squats 15s
++ setup 33s
++ downstairs 15s
++ upstairs 20s
+
+
 ![Sample Data](figures/indoor_walking_test_sample_plot.png)
 

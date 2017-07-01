@@ -54,6 +54,10 @@ Walking data for the knee
 
 ![Sample Data](figures/indoor_walking_test_knee_walking.png)
 
+Segmented walking data
+
+![Sample Data](figures/walking_steps_segmented.png)
+
 Full dataset plotted for lower leg
 
 ![Sample Data](figures/indoor_walking_test_sample_plot.png)

@@ -40,7 +40,8 @@ import seaborn as sns
 import pylab as plt
 
 start_time = 77.0
-end_time = 95.0
+#end_time = 95.0
+end_time = start_time+52.8
 
 for idx in range(4):
     fig, axes = plt.subplots(2,3, figsize=(8,4), sharey='row', sharex='row')

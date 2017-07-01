@@ -31,6 +31,7 @@ Notes on the data fields:
 + If you want to convert the gyrometer data to "degrees/sec", multiply by 2000 and divide by 2^15.
 + The accelerometers always have a "DC bias" induced by the acceleration of gravity. To convert from the integer-valued acceleration to units of "gs" divide by 2^14.
 + The accelerometers "clip" at 4g's or a maximum integer value of +/- 2^15. For fast activities such as sprinting we have the option of changing the ceiling to 8g's or even 16g's.
++ Notes on power lights: 1] is streaming computer 2] is recording to flash memory 3] is data already written to flash memory (that is, do we need to clear it) 
 
 #### 6/25/17 First field test
 

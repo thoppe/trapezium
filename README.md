@@ -51,16 +51,16 @@ Sample measurements should have taken approximately these time intervals:
 + upstairs 20s
 
 #### Segmented walking data
-*Waist*
+##### Waist
 ![Sample Data](figures/walking_steps_segmented_dev_0.png)
 
-*Upper Thigh*
+##### Upper Thigh
 ![Sample Data](figures/walking_steps_segmented_dev_3.png) 
 
-*Knee*
+##### Knee
 ![Sample Data](figures/walking_steps_segmented_dev_1.png)
 
-*Ankle*
+##### Ankle
 ![Sample Data](figures/walking_steps_segmented_dev_2.png)
 
 

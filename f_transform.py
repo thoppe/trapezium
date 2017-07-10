@@ -2,6 +2,9 @@ import pandas as pd
 import numpy as np
 from scipy.ndimage.filters import gaussian_filter as gf
 from scipy import signal
+import seaborn as sns
+import pylab as plt
+sns.set_style('white')
 
 
 f_csv = "data_collection/travis_walking_indoor_test5.dat"
@@ -19,6 +22,7 @@ df = pd.read_csv(
     f_csv,
     header = None,
     sep=' ',
+    nrows=10**20,
 ).rename(columns=cols)
 df.ax = (df.ax*2)/2**(15)
 df.ay = (df.ay*2)/2**(15)
@@ -28,42 +32,62 @@ df.gx = (df.gx*2000)/2**(15)/(360.)
 df.gy = (df.gy*2000)/2**(15)/(360.)
 df.gz = (df.gz*2000)/2**(15)/(360.)
 
-
 device_idx = df['device'].unique()
+
+# Map each device to a dictionary
 dev = dict(zip(*[device_idx,[df[df.device==x] for x in device_idx]]))
 
+
+def detrend_ramped_time_series(T):
+    max_clock_cycle = 2**32
+    clock_threshold = 2**28
+    dt = 1/(200.0*10**6)
+
+    # Assumes data starts off at some time and when it reaches zero, resets
+    idx = np.roll(np.ediff1d(T,0)>clock_threshold, 1)
+    T -= np.cumsum(idx)*max_clock_cycle
+
+    # Start data counting up
+    T *= -1
+
+    # Start time at 0
+    T -= T[0]
+
+    # Convert to seconds
+    return dt*T
+
 for i in dev:
+    pd.options.mode.chained_assignment = None
+    dev[i]['time'] = detrend_ramped_time_series(dev[i]['timestamp'].values)
+    pd.options.mode.chained_assignment = 'warn'
+
+    #dev[i].set_index('time',inplace=True)
     del dev[i]['timestamp']
     del dev[i]['device']
 
-import seaborn as sns
-import pylab as plt
-sns.set_style('white')
 
 start_time = 81.5
 end_time = 93.5
 #end_time = start_time+52.8
 
 for idx in range(4):
-    idx = 2
+    idx = 1
     
-    # Approx time delta for samples (this isn't quite correct)
-    T = np.arange(0, len(dev[idx].ax), 1/400.)
-    T = T[:len(dev[idx].ax)]
+    time_idx = (dev[idx].time>=start_time) & (dev[idx].time<=end_time)
+    df = dev[idx][time_idx]
 
-    time_idx = (T>=start_time) & (T<end_time)
-    T = T[time_idx]
-
-    ax = dev[idx].ax[time_idx]
-    ay = dev[idx].ay[time_idx]
-    az = dev[idx].az[time_idx]
+    T = df.time[time_idx].values
+    ax = df.ax[time_idx]
+    ay = df.ay[time_idx]
+    az = df.az[time_idx]
 
     ax -= ax.mean()
     ay -= ay.mean()
     az -= az.mean()
 
-    mag = ax**2 + ay**2 + ax**2
+    mag = (ax-ax.mean())**2 + (ay-ay.mean())**2 + (az-az.mean())**2
     mag = gf(mag,sigma=12.0)
+
 
     # Find the peaks
     peak_idx = signal.find_peaks_cwt(mag, T)
@@ -78,28 +102,19 @@ for idx in range(4):
 
     t,AX,AY,AZ = [],[],[],[]
     for i,j in zip(peak_idx, peak_idx[1:]):
-        t.append(T[i:j])
-        AX.append(ax[i:j])
-        AY.append(ay[i:j])
-        AZ.append(az[i:j])
 
+        t = T[i:j]
+        t -= t.min()
+        for a,c in zip([ax,ay,az],['r','g','b']):
+            
+            ag = gf(a[i:j], sigma=6.0)
+            plt.plot(t, ag, color=c, alpha=0.5)
 
-    for y in AX:
-        y = y.values
-        y = gf(y,sigma=6.0)
-        plt.plot(y, color='r',alpha=0.5)
-
-    for y in AY:
-        y = y.values
-        y = gf(y,sigma=6.0)
-        plt.plot(y, color='b',alpha=0.5)
-
-    for y in AZ:
-        y = y.values
-        y = gf(y,sigma=6.0)
-        plt.plot(y, color='g',alpha=0.5)
+    plt.xlabel('seconds')
+    plt.ylabel('acceleration g/s')
+    sns.despine()
+    plt.tight_layout()
     plt.show()
-    
     exit()
     
     print x
@@ -123,13 +138,13 @@ for idx in range(4):
     
     
     
-    axes[0][0].plot( T, dev[idx].ax )
-    axes[0][1].plot( T, dev[idx].ay )
-    axes[0][2].plot( T, dev[idx].az )
+    axes[0][0].plot( T, df.ax )
+    axes[0][1].plot( T, df.ay )
+    axes[0][2].plot( T, df.az )
     
-    axes[1][0].plot( T, dev[idx].gx )
-    axes[1][1].plot( T, dev[idx].gy )
-    axes[1][2].plot( T, dev[idx].gz )
+    axes[1][0].plot( T, df.gx )
+    axes[1][1].plot( T, df.gy )
+    axes[1][2].plot( T, df.gz )
 
     plt.suptitle("device {}".format(idx))
     

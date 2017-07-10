@@ -50,15 +50,18 @@ Sample measurements should have taken approximately these time intervals:
 + downstairs 15s
 + upstairs 20s
 
-Walking data for the knee
-
-![Sample Data](figures/indoor_walking_test_knee_walking.png)
-
-Segmented walking data
+#### Segmented walking data
+** Waist **
 ![Sample Data](figures/walking_steps_segmented_dev_0.png) Waist
-![Sample Data](figures/walking_steps_segmented_dev_3.png) Upper Thigh
-![Sample Data](figures/walking_steps_segmented_dev_1.png) Knee
-![Sample Data](figures/walking_steps_segmented_dev_2.png) Ankle
+
+**Upper Thigh **
+![Sample Data](figures/walking_steps_segmented_dev_3.png) 
+
+** Knee **
+![Sample Data](figures/walking_steps_segmented_dev_1.png)
+
+** Ankle **
+![Sample Data](figures/walking_steps_segmented_dev_2.png)
 
 
 Full dataset plotted for lower leg

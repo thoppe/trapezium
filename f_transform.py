@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import h5py
 from scipy.ndimage.filters import gaussian_filter as gf
 from scipy import signal
 import seaborn as sns
@@ -37,7 +38,6 @@ device_idx = df['device'].unique()
 # Map each device to a dictionary
 dev = dict(zip(*[device_idx,[df[df.device==x] for x in device_idx]]))
 
-
 def detrend_ramped_time_series(T):
     max_clock_cycle = 2**32
     clock_threshold = 2**28
@@ -70,24 +70,28 @@ start_time = 81.5
 end_time = 93.5
 #end_time = start_time+52.8
 
+f_save = 'data_processed/walking_collection.h5'
+h5 = h5py.File(f_save,'w')
+
 for idx in range(4):
-    idx = 1
-    
-    time_idx = (dev[idx].time>=start_time) & (dev[idx].time<=end_time)
-    df = dev[idx][time_idx]
+    print "Plotting device", idx
+    h5_g = h5.create_group(str(idx))
+
+    df = dev[idx]
+    time_idx = (df.time>=start_time) & (df.time<=end_time)
+    df = dev[idx].copy()[time_idx]
 
     T = df.time[time_idx].values
     ax = df.ax[time_idx]
     ay = df.ay[time_idx]
     az = df.az[time_idx]
 
-    ax -= ax.mean()
-    ay -= ay.mean()
-    az -= az.mean()
-
+    #ax -= ax.mean()
+    #ay -= ay.mean()
+    #az -= az.mean()
+    
     mag = (ax-ax.mean())**2 + (ay-ay.mean())**2 + (az-az.mean())**2
     mag = gf(mag,sigma=12.0)
-
 
     # Find the peaks
     peak_idx = signal.find_peaks_cwt(mag, T)
@@ -97,24 +101,43 @@ for idx in range(4):
     x = T[peak_idx]
     y = mag[peak_idx]
 
-    #T = T[peak_idx[0]:peak_idx[-1]]
-    #mag = mag[peak_idx[0]:peak_idx[-1]]
+    # Save the segmented data too
+    color_keys = {'ax':'r','ay':'g','az':'b'}
+        
+    plt.figure()    
+    for k,(i,j) in enumerate(zip(peak_idx, peak_idx[1:])):
 
-    t,AX,AY,AZ = [],[],[],[]
-    for i,j in zip(peak_idx, peak_idx[1:]):
-
+        sample = h5_g.create_group(str(k))
+        
         t = T[i:j]
         t -= t.min()
-        for a,c in zip([ax,ay,az],['r','g','b']):
-            
+        
+        for a,name in zip([ax,ay,az],color_keys):
             ag = gf(a[i:j], sigma=6.0)
-            plt.plot(t, ag, color=c, alpha=0.5)
+            sample[name] = ag
+
+            label=None
+            if k==0: label=name
+            
+            plt.plot(t, ag,
+                     label=label,
+                     color=color_keys[name],
+                     alpha=0.5)
+            
+        sample['t'] = t
+
+
 
     plt.xlabel('seconds')
     plt.ylabel('acceleration g/s')
+    plt.legend()
     sns.despine()
     plt.tight_layout()
-    plt.show()
+    #plt.show()
+
+    continue
+
+    '''
     exit()
     
     print x
@@ -160,7 +183,7 @@ for idx in range(4):
         axes[0][0].set_xlim(start_time, end_time)
     
     plt.tight_layout()
-
+    '''
 
 plt.show()
 

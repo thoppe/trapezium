@@ -62,5 +62,7 @@ Full dataset plotted for lower leg
 
 ![Sample Data](figures/indoor_walking_test_sample_plot.png)
 
-<blockquote class="twitter-tweet" data-lang="en"><p lang="en" dir="ltr">Body <a href="https://twitter.com/hashtag/hack?src=hash">#hack</a> <a href="https://twitter.com/hashtag/experiments?src=hash">#experiments</a> ongoing with <a href="https://twitter.com/EricHaengel">@EricHaengel</a>. Measurements of acceleration above the knee while walking. Full body scans coming soon. <a href="https://t.co/guLCXpp11l">pic.twitter.com/guLCXpp11l</a></p>&mdash; Travis Hoppe (@metasemantic) <a href="https://twitter.com/metasemantic/status/881317564680478720">July 2, 2017</a></blockquote>
-<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+### Visual shots
+
+[https://twitter.com/metasemantic/status/881317564680478720](https://twitter.com/metasemantic/status/881317564680478720)

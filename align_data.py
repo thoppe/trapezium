@@ -8,7 +8,7 @@ import pylab as plt
 import itertools
 sns.set_style('white')
 
-device_idx = '1'
+device_idx = '3'
 
 f_save = 'data_processed/walking_collection.h5'
 data = {}
@@ -69,4 +69,6 @@ plt.ylabel('acceleration g/s')
 plt.legend()
 sns.despine()
 plt.tight_layout()
+plt.savefig("figures/walking_steps_segmented_dev_{}.png".format(device_idx))
 plt.show()
+

@@ -35,7 +35,7 @@ Notes on the data fields:
 
 #### 6/25/17 First field test
 
-Took several measurements walking, jogging, running, sprinting, backwards walking, jumping, squats, and stairs. Sensor device order (1-4-2-3) mounted roughly on the waist, upper thigh, top of knee, and above the ankle.
+Took several measurements walking, jogging, running, sprinting, backwards walking, jumping, squats, and stairs. Sensor device order (0-3-1-2) mounted roughly on the waist, upper thigh, top of knee, and above the ankle.
 
 Sample measurements should have taken approximately these time intervals:
 
@@ -55,8 +55,11 @@ Walking data for the knee
 ![Sample Data](figures/indoor_walking_test_knee_walking.png)
 
 Segmented walking data
+![Sample Data](figures/walking_steps_segmented_dev_0.png) Waist
+![Sample Data](figures/walking_steps_segmented_dev_3.png) Upper Thigh
+![Sample Data](figures/walking_steps_segmented_dev_1.png) Knee
+![Sample Data](figures/walking_steps_segmented_dev_2.png) Ankle
 
-![Sample Data](figures/walking_steps_segmented.png)
 
 Full dataset plotted for lower leg
 

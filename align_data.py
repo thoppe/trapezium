@@ -8,11 +8,11 @@ import pylab as plt
 import itertools
 sns.set_style('white')
 
-device_idx = '3'
+device_idx = '2'
 
 f_save = 'data_processed/walking_collection.h5'
 data = {}
-tn = 2000
+tn = 1000
 time = np.linspace(0,1.2,tn)
 dt = time[1]-time[0]
 
@@ -45,10 +45,10 @@ def find_average_shift(data, key, offset=None):
         shift_weight = np.zeros(N)
         for j in data:
             if i == j: continue
-            x1 = data[i][key](time+offset[i]*dt)
-            x2 = data[j][key](time+offset[j]*dt)
+            y1 = data[i][key](time-offset[i]*dt)
+            y2 = data[j][key](time-offset[j]*dt)
             
-            c  = np.correlate(x2, x1, 'full')
+            c  = np.correlate(y2, y1, 'full')
             idx = c.argmax()
             shift_val[j] = idx - tn
             shift_weight[j] = c[idx]
@@ -57,17 +57,34 @@ def find_average_shift(data, key, offset=None):
         if shift_weight.sum()==0:
             shift_weight += 1
 
-        shift[i] = int(np.average(shift_val, weights=shift_weight))
+        shift[i] = np.average(shift_val, weights=shift_weight)
         #print i, key, shift[i]
     return shift
 
+def compute_loss(shift):
+    loss = 0.0
+    for key in directions:
+        for i,j in itertools.combinations(data, r=2):
+            
+            y1 = data[i][key](time-shift[i]*dt)
+            y2 = data[j][key](time-shift[j]*dt)
+            loss += ((y1-y2)**2).sum()
+    print "LOSS", loss
+    return loss
 
+directions = ['ax','ay','az']
 shift = np.median([find_average_shift(data, k) for k in directions],axis=0)
+print compute_loss(shift)
+print shift*dt
 
-#for _ in range(5):
-#    shift = np.median([find_average_shift(data, k, shift) for k in directions],axis=0)
-#    print np.abs(shift).sum(), shift
-print shift
+from scipy.optimize import minimize
+sol = minimize(compute_loss, shift, method='L-BFGS-B',
+               options={"maxiter":10})
+shift = sol.x
+
+print shift*dt
+print compute_loss(shift)
+
 
 color_keys = {'ax':'r','ay':'g','az':'b'}
 
@@ -76,13 +93,12 @@ for i in data:
         label = name if i==0 else None
 
         x = time - dt*shift[i]
-        y = data[i][name](x)
-        
+        y = data[i][name](x)        
 
         y[x<0] = None
         y[y==0] = None
         
-        plt.plot(x, y,
+        plt.plot(time, y,
                  label=label,
                  color=color_keys[name],
                  alpha=0.45)

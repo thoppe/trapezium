@@ -77,6 +77,39 @@ shift = np.median([find_average_shift(data, k) for k in directions],axis=0)
 print compute_loss(shift)
 print shift*dt
 
+
+name = 'az'
+x = np.array([time,]*len(data)).ravel()
+y = np.array([data[i][name](time - dt*shift[i]) for i in data]).ravel()
+idx = (x<0) | (y==0)
+x = x[~idx]
+y = y[~idx]
+
+x = x.reshape(-1,1)
+y = y.reshape(-1,1)
+
+#N = 12
+#x = np.random.rand(N,1)
+#y = np.sin(12*x) + 0.66*np.cos(25*x) + np.random.randn(N,1)*0.1 + 3
+
+import GPflow
+k = GPflow.kernels.Matern52(1, lengthscales=0.3)
+m = GPflow.gpr.GPR(x, y, kern=k)
+m.likelihood.variance = 0.01
+mean,var = m.predict_y(time[:,None])
+plt.plot(time[:,None], mean)
+plt.fill_between(time[:,None][:,0],
+                 mean[:,0] - 2*np.sqrt(var[:,0]),
+                 mean[:,0] + 2*np.sqrt(var[:,0]), color='blue', alpha=0.15)
+
+plt.scatter(x,y,color='k',s=1,alpha=0.15)
+plt.show()
+
+print x.shape,y.shape
+exit()
+
+
+'''
 from scipy.optimize import minimize
 sol = minimize(compute_loss, shift, method='L-BFGS-B',
                options={"maxiter":10})
@@ -84,7 +117,7 @@ shift = sol.x
 
 print shift*dt
 print compute_loss(shift)
-
+'''
 
 color_keys = {'ax':'r','ay':'g','az':'b'}
 

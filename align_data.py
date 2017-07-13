@@ -1,14 +1,18 @@
 import numpy as np
-import h5py
+import h5py,sys
 from scipy.ndimage.filters import gaussian_filter as gf
 from scipy.interpolate import interp1d
 from scipy.signal import correlate
 import seaborn as sns
 import pylab as plt
+import GPflow
+
 import itertools
 sns.set_style('white')
+color_keys = {'ax':'r','ay':'g','az':'b'}
 
-device_idx = '2'
+device_idx = str(sys.argv[1])
+#device_idx = '2'
 
 f_save = 'data_processed/walking_collection.h5'
 data = {}
@@ -74,35 +78,55 @@ def compute_loss(shift):
 
 directions = ['ax','ay','az']
 shift = np.median([find_average_shift(data, k) for k in directions],axis=0)
-print compute_loss(shift)
-print shift*dt
+compute_loss(shift)
+print "Shift factor", shift*dt
 
 
-name = 'az'
-x = np.array([time,]*len(data)).ravel()
-y = np.array([data[i][name](time - dt*shift[i]) for i in data]).ravel()
-idx = (x<0) | (y==0)
-x = x[~idx]
-y = y[~idx]
+for name in directions:
+    print "Plotting", name
+    
+    X = np.array([time,]*len(data))
+    Y = np.array([data[i][name](time - dt*shift[i]) for i in data])
 
-x = x.reshape(-1,1)
-y = y.reshape(-1,1)
+    # Do something about the endpoints
+    for j in range(X.shape[1]):
+        x,y = X[:,j], Y[:,j]
+        idx = (x<0) | (y==0)
 
-#N = 12
-#x = np.random.rand(N,1)
-#y = np.sin(12*x) + 0.66*np.cos(25*x) + np.random.randn(N,1)*0.1 + 3
+        if not (~idx).sum():
+            continue
 
-import GPflow
-k = GPflow.kernels.Matern52(1, lengthscales=0.3)
-m = GPflow.gpr.GPR(x, y, kern=k)
-m.likelihood.variance = 0.01
-mean,var = m.predict_y(time[:,None])
-plt.plot(time[:,None], mean)
-plt.fill_between(time[:,None][:,0],
-                 mean[:,0] - 2*np.sqrt(var[:,0]),
-                 mean[:,0] + 2*np.sqrt(var[:,0]), color='blue', alpha=0.15)
+        Y[idx,j] = y[~idx].mean()
 
-plt.scatter(x,y,color='k',s=1,alpha=0.15)
+
+    k = GPflow.kernels.Matern52(1, lengthscales=0.3)
+    m = GPflow.gpr.GPR(X, Y, kern=k)
+    m.likelihood.variance = 0.0075
+
+    t = X[[0],:]
+    mean,var = m.predict_y(t)
+    plt.plot(t[0], mean[0],
+             lw=2,
+             color=color_keys[name], label=name)
+
+    plt.fill_between(t[0],
+                     mean[0] - 2*np.sqrt(var[0]),
+                     mean[0] + 2*np.sqrt(var[0]), color='blue', alpha=0.15)
+
+
+    for x,y in zip(X,Y):
+        plt.plot(x,y,
+                 color=color_keys[name],
+                 alpha=0.20, lw=0.75)
+    
+
+plt.xlabel('seconds')
+plt.ylabel('acceleration g/s')
+plt.legend()
+sns.despine()
+plt.tight_layout()
+plt.savefig("figures/walking_steps_segmented_dev_{}_GP.png".format(device_idx))
+
 plt.show()
 
 print x.shape,y.shape
@@ -119,7 +143,7 @@ print shift*dt
 print compute_loss(shift)
 '''
 
-color_keys = {'ax':'r','ay':'g','az':'b'}
+
 
 for i in data:
     for name in color_keys:

@@ -63,6 +63,18 @@ Sample measurements should have taken approximately these time intervals:
 ##### Ankle
 ![Sample Data](figures/walking_steps_segmented_dev_2.png)
 
+#### Segmented walking data modeled with a Guaussian Process
+##### Waist
+![Sample Data](figures/walking_steps_segmented_dev_0_GP.png)
+
+##### Upper Thigh
+![Sample Data](figures/walking_steps_segmented_dev_3_GP.png) 
+
+##### Knee
+![Sample Data](figures/walking_steps_segmented_dev_1_GP.png)
+
+##### Ankle
+![Sample Data](figures/walking_steps_segmented_dev_2_GP.png)
 
 Full dataset plotted for lower leg
 

@@ -21,9 +21,11 @@ class LEDAnimation:
 	# Animation functions
 	def draw_animation(self, filename):
 		for n in range(0, self.get_frame_count()):
+			print 'Drawing strip %04d/%04d...' % (n, self.get_frame_count())
 			self.led_strip_list[n].draw_strip('data/strip_%04d.jpeg' % n)
 
-		os.system('avconv -r 10 -i data/strip_%%04d.jpeg -b:v 1000k %s' % filename)
+		os.system('ffmpeg -r 60 -f image2 -i data/strip_%%04d.jpeg %s' % filename)
+		#os.system('avconv -r 10 -i data/strip_%%04d.jpeg -b:v 1000k %s' % filename)
 		os.system('rm data/strip*')
 
 	# Debugging functions

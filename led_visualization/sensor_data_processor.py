@@ -17,6 +17,68 @@ class SensorDataProcessor:
 		self.accel = []
 
 	# Generation animations
+	def generate_animation_delay_line(self, filename):
+		# Down-sample and scale acceleration vectors
+		print 'Down-sampling/scaling acceleration values...'
+		down_sample_factor = 40
+		scale_factor = 1.0 / (2.0**15)
+		ax_ds = [0] * int(len(self.ax) / down_sample_factor)
+		ay_ds = [0] * int(len(self.ay) / down_sample_factor)
+		az_ds = [0] * int(len(self.az) / down_sample_factor)
+		
+		h = open('data/accel_downsample.dat', 'w')
+		for n in range(0, len(ax_ds)):
+			ax_ds[n] = abs(scale_factor * sum(self.ax[(n*down_sample_factor):((n+1)*down_sample_factor)]) / float(down_sample_factor))
+			ay_ds[n] = abs(scale_factor * sum(self.ay[(n*down_sample_factor):((n+1)*down_sample_factor)]) / float(down_sample_factor))
+			az_ds[n] = abs(scale_factor * sum(self.az[(n*down_sample_factor):((n+1)*down_sample_factor)]) / float(down_sample_factor))
+			h.write('%.8f %.8f %.8f\n' % (ax_ds[n], ay_ds[n], az_ds[n]))
+		h.close()
+		
+		# Filter acceleration vectors
+		print 'Filtering/rectifying acceleration vectors...'
+		tap_count = 10
+		ax_ds_filt = [0] * len(ax_ds)
+		ay_ds_filt = [0] * len(ay_ds)
+		az_ds_filt = [0] * len(az_ds)
+		
+		ax_ds = ax_ds + ([0] * tap_count)
+		ay_ds = ay_ds + ([0] * tap_count)
+		az_ds = az_ds + ([0] * tap_count)
+		
+		h = open('data/accel_ds_filt.dat', 'w')
+		for n in range(0, len(ax_ds_filt)):
+			ax_ds_filt[n] = sum(map(abs, ax_ds[n:(n+tap_count-1)])) / float(tap_count)
+			ay_ds_filt[n] = sum(map(abs, ay_ds[n:(n+tap_count-1)])) / float(tap_count)
+			az_ds_filt[n] = sum(map(abs, az_ds[n:(n+tap_count-1)])) / float(tap_count)
+			h.write('%.8f %.8f %.8f\n' % (ax_ds_filt[n], ay_ds_filt[n], az_ds_filt[n]))
+		h.close()
+
+		# Generate animation
+		print 'Generating animation...'
+		led_count = 50
+		led_animation = LEDAnimation(led_count = led_count, frame_count = len(ax_ds_filt))
+
+		ax_list = [ 0.0 ] * led_count
+		ay_list = [ 0.0 ] * led_count
+		az_list = [ 0.0 ] * led_count
+
+		for n in range(0, len(ax_ds_filt)):
+			ax_list = [ ax_ds_filt[n] ] + ax_list[0:len(ax_list)-1]
+			ay_list = [ ay_ds_filt[n] ] + ay_list[0:len(ay_list)-1]
+			az_list = [ az_ds_filt[n] ] + az_list[0:len(az_list)-1]
+			
+			#print len(ax_list)
+			#print len(ay_list)
+			#print len(az_list)
+			
+			print 'Generating frame %d/%d' % (n, len(ax_ds_filt))
+
+			for k in range(0, led_count):
+				#print n, k
+				led_animation.led_strip_list[n].led_list[k] = [ int(255.0*ax_list[k]), int(255.0*ay_list[k]), int(255.0*az_list[k]) ]
+
+		led_animation.draw_animation(filename)
+		
 	def generate_animation_accel_meter(self, filename):
 		print 'Generating accelartion magnitudes...'
 		self.generate_accel_mag()
